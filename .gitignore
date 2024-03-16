@@ -133,3 +133,6 @@ dist
 /worldcities.client/.vscode
 /WorldCities.Server/obj
 /WorldCities.Server/Properties
+/worldcities.client/obj/Debug
+/WorldCities.Server/bin/Debug/net8.0
+/worldcities.client/package-lock.json
