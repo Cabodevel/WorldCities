@@ -128,3 +128,8 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+/.vs/WorldCities/v17
+/.vs/WorldCities
+/worldcities.client/.vscode
+/WorldCities.Server/obj
+/WorldCities.Server/Properties
