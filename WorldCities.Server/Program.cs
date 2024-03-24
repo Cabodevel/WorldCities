@@ -20,6 +20,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+app.UseCors(cfg => cfg.AllowAnyOrigin().AllowAnyMethod());
 
 app.UseDefaultFiles();
 app.UseStaticFiles();

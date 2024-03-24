@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Dynamic.Core;
 using WorldCities.Server.Data;
 using WorldCities.Server.Data.Models;
 
@@ -23,9 +19,22 @@ namespace WorldCities.Server.Controllers
 
         // GET: api/Cities
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<City>>> GetCities()
+        public async Task<ActionResult<ApiResult<City>>> GetCities(
+            int pageIndex = 0,
+            int pageSize = 10,
+            string? sortColumn = null,
+            string? sortOrder = null,
+            string? filterColumn = null,
+            string? filterQuery = null)
         {
-            return await _context.Cities.ToListAsync();
+            return await ApiResult<City>.CreateAsync(
+                    _context.Cities.AsNoTracking(),
+                    pageIndex,
+                    pageSize,
+                    sortColumn,
+                    sortOrder,
+                    filterColumn,
+                    filterQuery);
         }
 
         // GET: api/Cities/5
@@ -34,7 +43,7 @@ namespace WorldCities.Server.Controllers
         {
             var city = await _context.Cities.FindAsync(id);
 
-            if (city == null)
+            if(city == null)
             {
                 return NotFound();
             }
@@ -47,7 +56,7 @@ namespace WorldCities.Server.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCity(int id, City city)
         {
-            if (id != city.Id)
+            if(id != city.Id)
             {
                 return BadRequest();
             }
@@ -58,9 +67,9 @@ namespace WorldCities.Server.Controllers
             {
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch(DbUpdateConcurrencyException)
             {
-                if (!CityExists(id))
+                if(!CityExists(id))
                 {
                     return NotFound();
                 }
@@ -89,7 +98,7 @@ namespace WorldCities.Server.Controllers
         public async Task<IActionResult> DeleteCity(int id)
         {
             var city = await _context.Cities.FindAsync(id);
-            if (city == null)
+            if(city == null)
             {
                 return NotFound();
             }
