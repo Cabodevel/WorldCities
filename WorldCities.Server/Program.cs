@@ -1,8 +1,20 @@
+using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
+using WorldCities.Server.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
-builder.Services.AddControllers();
+// Add services to the container.
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.WriteIndented = true;
+        });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
