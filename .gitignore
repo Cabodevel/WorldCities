@@ -136,3 +136,4 @@ dist
 /worldcities.client/obj/Debug
 /WorldCities.Server/bin/Debug/net8.0
 /worldcities.client/package-lock.json
+/.vs/ProjectEvaluation
