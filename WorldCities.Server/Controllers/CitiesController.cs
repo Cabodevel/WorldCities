@@ -93,6 +93,19 @@ namespace WorldCities.Server.Controllers
             return CreatedAtAction("GetCity", new { id = city.Id }, city);
         }
 
+        [HttpPost]
+        [Route("IsDupeCity")]
+        public bool IsDupeCity(City city)
+        {
+            return _context.Cities.AsNoTracking().Any(
+                e => e.Name == city.Name
+                && e.Lat == city.Lat
+                && e.Lon == city.Lon
+                && e.CountryId == city.CountryId
+                && e.Id != city.Id
+            );
+        }
+
         // DELETE: api/Cities/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCity(int id)
