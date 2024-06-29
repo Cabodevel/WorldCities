@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using WorldCities.Server.Data;
@@ -14,6 +16,9 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.WriteIndented = true;
+            options.JsonSerializerOptions.MaxDepth = 10;
+            options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+            options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
         });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -25,12 +30,8 @@ app.UseCors(cfg => cfg.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-// Configure the HTTP request pipeline.
-if(app.Environment.IsDevelopment())
-{
     app.UseSwagger();
     app.UseSwaggerUI();
-}
 
 app.UseHttpsRedirection();
 
@@ -40,4 +41,8 @@ app.MapControllers();
 
 app.MapFallbackToFile("/index.html");
 
-app.Run();
+using var scope = app.Services.CreateAsyncScope();  
+using var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+await db.Database.MigrateAsync();
+
+await app.RunAsync();

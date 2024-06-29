@@ -19,20 +19,16 @@ public class CountriesController : ControllerBase
     // GET: api/Countries
     [HttpGet]
     public async Task<ActionResult<ApiResult<Country>>> GetCountries(
-         int pageIndex = 0,
-         int pageSize = 10,
-         string? sortColumn = null,
-         string? sortOrder = null,
-         string? filterColumn = null,
+         int skip = 0,  
+         int top = 10,
+         string? orderBy = null,
          string? filterQuery = null)
     {
         return await ApiResult<Country>.CreateAsync(
-                _context.Countries.AsNoTracking(),
-                pageIndex,
-                pageSize,
-                sortColumn,
-                sortOrder,
-                filterColumn,
+                _context.Countries.Include(x => x.Cities).AsNoTracking(),
+                skip,
+                top,
+                orderBy,
                 filterQuery);
     }
 

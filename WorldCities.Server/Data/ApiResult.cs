@@ -12,21 +12,16 @@ public class ApiResult<T>
     private ApiResult(
         List<T> data,
         int count,
-        int pageIndex,
-        int pageSize,
-        string? sortColumn,
-        string? sortOrder,
-        string? filterColumn,
+        int skip, 
+        int top,
+        string? orderBy,
         string? filterQuery)
     {
         Data = data;
-        PageIndex = pageIndex;
-        PageSize = pageSize;
+        Skip = skip;
+        Top = top;
         TotalCount = count;
-        TotalPages = (int)Math.Ceiling(count / (double)pageSize);
-        SortColumn = sortColumn;
-        SortOrder = sortOrder;
-        FilterColumn = filterColumn;
+        OrderBy = orderBy;
         FilterQuery = filterQuery;
     }
 
@@ -45,47 +40,33 @@ public class ApiResult<T>
     /// </returns>
     public static async Task<ApiResult<T>> CreateAsync(
         IQueryable<T> source,
-        int pageIndex,
-        int pageSize,
-        string? sortColumn = null,
-        string? sortOrder = null,
-        string? filterColumn = null,
+        int skip,
+        int top,
+        string? orderBy = null,
         string? filterQuery = null)
     {
-        if(!string.IsNullOrEmpty(filterColumn)
-                && !string.IsNullOrEmpty(filterQuery)
-                && IsValidProperty(filterColumn))
+        if(!string.IsNullOrEmpty(filterQuery))
         {
-            source = source.Where(
-                string.Format("{0}.StartsWith(@0)",
-                filterColumn),
-                filterQuery);
+            source = source.Where(filterQuery);
         }
 
         var count = await source.CountAsync();
-        if(!string.IsNullOrEmpty(sortColumn)
-            && IsValidProperty(sortColumn))
+        if(!string.IsNullOrEmpty(orderBy))
         {
-            sortOrder = !string.IsNullOrEmpty(sortOrder)
-                && sortOrder.ToUpper() == "ASC"
-                ? "ASC"
-                : "DESC";
-            source = source.OrderBy(string.Format("{0} {1}", sortColumn, sortOrder));
+            source = source.OrderBy(orderBy);
         }
         source = source
-            .Skip(pageIndex * pageSize)
-            .Take(pageSize);
+            .Skip(skip)
+            .Take(top);
 
         var data = await source.ToListAsync();
 
         return new ApiResult<T>(
             data,
             count,
-            pageIndex,
-            pageSize,
-            sortColumn,
-            sortOrder,
-            filterColumn,
+            skip,
+            top,
+            orderBy,
             filterQuery);
     }
 
@@ -114,59 +95,20 @@ public class ApiResult<T>
     /// <summary>
     /// Zero-based index of current page.
     /// </summary>
-    public int PageIndex { get; private set; }
+    public int Skip { get; private set; }
     /// <summary>
     /// Number of items contained in each page.
     /// </summary>
-    public int PageSize { get; private set; }
+    public int Top { get; private set; }
     /// <summary>
     /// Total items count
     /// </summary>
     public int TotalCount { get; private set; }
-    /// <summary>
-    /// Total pages count
-    /// </summary>
-    public int TotalPages { get; private set; }
     
     /// <summary>
-    /// Sorting Column name (or null if none set)
+    /// Sorting Order query
     /// </summary>
-    public string? SortColumn { get; set; }
+    public string? OrderBy { get; set; }
     
-    /// <summary>
-    /// Sorting Order ("ASC", "DESC" or null if none set)
-    /// </summary>
-    public string? SortOrder { get; set; }
-    
-    /// <summary>
-    /// TRUE if the current page has a previous page, 
-    /// FALSE otherwise.
-    /// </summary>
-    public bool HasPreviousPage
-    {
-        get
-        {
-            return (PageIndex > 0);
-        }
-    }
-    /// <summary>
-    /// TRUE if the current page has a next page, FALSE otherwise.
-    /// </summary>
-    public bool HasNextPage
-    {
-        get
-        {
-            return ((PageIndex + 1) < TotalPages);
-        }
-    }
-
-    /// <summary>
-    /// Filter Column name (or null if none set)
-    /// </summary>
-    public string? FilterColumn { get; set; }
-    /// <summary>
-    /// Filter Query string 
-    /// (to be used within the given FilterColumn)
-    /// </summary>
     public string? FilterQuery { get; set; }
 }
