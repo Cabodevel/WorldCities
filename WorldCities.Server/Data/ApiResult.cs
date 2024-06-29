@@ -25,19 +25,6 @@ public class ApiResult<T>
         FilterQuery = filterQuery;
     }
 
-    /// <summary>
-    /// Pages a IQueryable source.
-    /// </summary>
-    /// <param name="source">An IQueryable source of generic 
-    /// type</param>
-    /// <param name="pageIndex">Zero-based current page index 
-    /// (0 = first page)</param>
-    /// <param name="pageSize">The actual size of each 
-    /// page</param>
-    /// <returns>
-    /// A object containing the paged result 
-    /// and all the relevant paging navigation info.
-    /// </returns>
     public static async Task<ApiResult<T>> CreateAsync(
         IQueryable<T> source,
         int skip,
@@ -68,24 +55,6 @@ public class ApiResult<T>
             top,
             orderBy,
             filterQuery);
-    }
-
-    public static bool IsValidProperty(
-             string propertyName,
-             bool throwExceptionIfNotFound = true)
-    {
-        var prop = typeof(T).GetProperty(
-            propertyName,
-            BindingFlags.IgnoreCase |
-            BindingFlags.Public |
-            BindingFlags.Instance);
-
-        return prop == null && throwExceptionIfNotFound
-            ? throw new NotSupportedException(
-                string.Format(
-                    $"ERROR: Property '{propertyName}' does not exist.")
-                )
-            : prop != null;
     }
 
     /// <summary>
